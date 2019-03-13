@@ -14,8 +14,7 @@ There should be whitespace between paragraphs. We recommend including a README, 
 | Option                       | head two          |
 |:-----------------------------|:------------------|
 | proxy_cache my_cache;        | Gọi cache         |
-| proxy_cache_use_stale error timeout updating http_500 http_502
-                              http_503 http_504;   | good and plenty   |
+| proxy_cache_use_stale        | good and plenty   |
 | ok                           | good `oreos`      |
 | ok                           | good `zoute` drop |
 
@@ -67,6 +66,15 @@ end
 | out of stock | good and plenty   | nice  |
 | ok           | good `oreos`      | hmm   |
 | ok           | good `zoute` drop | yumm  |
+
+
+| Option                       | head two          |
+|:-----------------------------|:------------------|
+| proxy_cache my_cache;        | Gọi cache         |
+| proxy_cache_use_stale        | good and plenty   |
+| ok                           | good `oreos`      |
+| ok                           | good `zoute` drop |
+
 
 ### There's a horizontal rule below this.
 
