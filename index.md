@@ -37,13 +37,14 @@ There should be whitespace between paragraphs. We recommend including a README, 
 | ok                           | good `oreos`      |
 | ok                           | good `zoute` drop |
 
-
-
+dsd
 
 | Option                       | head two          |
 |:-----------------------------|:------------------|
 | proxy_cache my_cache;        | Gọi cache         |
-| proxy_cache_use_stale        | good and plenty   |
+| proxy_cache_use_stale error 
+  timeout updating http_500
+  http_502 http_503 http_504;  | good and plenty   |
 | ok                           | good `oreos`      |
 | ok                           | good `zoute` drop |
 
