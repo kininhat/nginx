@@ -117,7 +117,7 @@ Giống như trên nhưng đuôi .PNG cũng có thể pass.
 ![Image](/assets/img/cached-test.png)
 
 * Ở console
-![Image](/assets/img/cached-test2.png)
+![Image](/assets/img/cache-test2.png)
 
 #### Tham khảo
 mkdir /path/to/cache
