@@ -4,7 +4,9 @@ layout: default
 Bài viết nhằm thảo luận về  **nginx cache cho backend vestacp(nginx + httpd)** dưới góc nhìn của beginner.
 
 Tham khảo [link](https://www.nginx.com/blog/nginx-caching-guide).
+
 Tham khảo [link](http://www.anton-pirker.at/boosting-djangos-performance-with-nginx-reverse-proxy-cache).
+
 Tham khảo [link](https://viblo.asia/p/nginx-server-va-location-block-cach-lam-viec-va-phuong-thuc-dieu-huong-request-3Q75wy3DZWb).
 
 
