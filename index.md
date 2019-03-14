@@ -3,9 +3,9 @@ layout: default
 ---
 Bài viết nhằm thảo luận về  **nginx cache cho backend vestacp(nginx + httpd)** dưới góc nhìn của beginner.
 
-[Tham khảo](./https://www.nginx.com/blog/nginx-caching-guide/).
-[Tham khảo](./http://www.anton-pirker.at/boosting-djangos-performance-with-nginx-reverse-proxy-cache/).
-[Tham khảo](./https://viblo.asia/p/nginx-server-va-location-block-cach-lam-viec-va-phuong-thuc-dieu-huong-request-3Q75wy3DZWb).
+Tham khảo [link](./https://www.nginx.com/blog/nginx-caching-guide/).
+Tham khảo [link](./http://www.anton-pirker.at/boosting-djangos-performance-with-nginx-reverse-proxy-cache/).
+Tham khảo [link](./https://viblo.asia/p/nginx-server-va-location-block-cach-lam-viec-va-phuong-thuc-dieu-huong-request-3Q75wy3DZWb).
 
 
 ### Các vấn đề  cần lưu ý khi set up nginx cache.
@@ -112,10 +112,10 @@ Giống như trên nhưng đuôi .PNG cũng có thể pass.
 
 #### Kiểm tra cache
 * Ở trình duyệt có thể  F12
-![Trình duyệt](/assets/img/cached-test.png)
+![Image](/assets/img/cached-test.png)
 
 * Ở console
-![Console](/assets/img/cached-test2.png)
+![Image](/assets/img/cached-test2.png)
 
 #### Tham khảo
 mkdir /path/to/cache
