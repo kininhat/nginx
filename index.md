@@ -1,171 +1,142 @@
 ---
 layout: default
 ---
+Bài viết nhằm thảo luận về  **nginx cache cho backend vestacp(nginx + httpd)** dưới góc nhìn của beginner.
 
-Text can be **bold**, _italic_, or ~~strikethrough~~.
-
-[Link to another page](./another-page.html).
-
-There should be whitespace between paragraphs.
-
-There should be whitespace between paragraphs. We recommend including a README, or a file with information about your project.
-
-| Option                       | head two          |
-|:-----------------------------|:------------------|
-| proxy_cache my_cache;        | Gọi cache         |
-| proxy_cache_use_stale error                      |
-  timeout updating http_500                        |
-  http_502 http_503 http_504;  |  good and plenty  |
-| ok                           | good `oreos`      |
-| ok                           | good `zoute` drop |
-
-| Option                       | head two          |
-|:-----------------------------|:------------------|
-| proxy_cache my_cache;        | Gọi cache         |
-| proxy_cache_use_stale error  |                   |
-  timeout updating http_500    |                   |
-  http_502 http_503 http_504;  | good and plenty   |
-| ok                           | good `oreos`      |
-| ok                           | good `zoute` drop 
-
-| Option                       | head two          |
-|:-----------------------------|:------------------|
-| proxy_cache my_cache;        | Gọi cache         |
-| proxy_cache_use_stale error
-  timeout updating http_500
-  http_502 http_503 http_504;  | good and plenty   |
-| ok                           | good `oreos`      |
-| ok                           | good `zoute` drop |
-
-dsd
-
-| Option                       | head two          |
-|:-----------------------------|:------------------|
-| proxy_cache my_cache;        | Gọi cache         |
-| proxy_cache_use_stale error 
-  timeout updating http_500
-  http_502 http_503 http_504;  | good and plenty   |
-| ok                           | good `oreos`      |
-| ok                           | good `zoute` drop |
+[Tham khảo](./https://www.nginx.com/blog/nginx-caching-guide/).
+[Tham khảo](./http://www.anton-pirker.at/boosting-djangos-performance-with-nginx-reverse-proxy-cache/).
+[Tham khảo](./https://viblo.asia/p/nginx-server-va-location-block-cach-lam-viec-va-phuong-thuc-dieu-huong-request-3Q75wy3DZWb).
 
 
-# Header 1
+# Các vấn đề  cần lưu ý khi set up nginx cache.
 
-This is a normal paragraph following a header. GitHub is a code hosting platform for version control and collaboration. It lets you and others work together on projects from anywhere.
+Để  đảm bảo 1 website hoạt động tốt (load nhanh và delay ít) có rất nhiều yếu tố, trong đó cache là 1 trong những yêu cầu giải quyết vấn đề  đó. Nhưng trước khi set up cache, chúng ta cần lưu ý.
 
-## Header 2
+*   Cơ chế  xử  lý cache của code: dùng cookie hay plugin ,...
+image
+*   Đối tượng cách: Dynamic content, Static content
+*   Location cached: uri nào được cache, uri nào thì không cần cache
+*   ....
+Vì vậy, cần xác nhận tối thiểu các yêu cầu như trên trước khi tiến hành.
 
-> This is a blockquote following a header.
->
-> When something is important enough, you do it even if the odds are not in your favor.
+## Cách cài đặt nginx-cache
+#### Khởi tạo
+proxy_cache_path /path/to/cache levels=1:2 keys_zone=my_cache:10m max_size=10g
+                 inactive=60m use_temp_path=off;
+Tham số:
+*   proxy_cache_path  => đường dẫn file cache
+*   levels  => Cấp độ lưu trữ cache
+*   keys_zone  => tên cache và dung lượng cho phép
+*   max_size  => dung lượng tối
+*   proxy_cache_path=off  => đường dẫn đến file cache
 
-### Header 3
+#### Cấu hình
+Sau đây là 1 số  option để  thêm vào file config hay dùng
 
-```js
-// Javascript code with syntax highlighting.
-var fun = function lang(l) {
-  dateformat.i18n = require('./lang/' + l)
-  return true;
+ proxy_cache my_cache;              #> Gọi cache
+
+ proxy_cache_use_stale error timeout updating http_500 http_502 http_503 http_504;     
+ #> Cấp lại cache cũ khi reponse lỗi hoặc cache hết hạn   
+
+ proxy_cache_revalidate on;         #> Load phần thay đổi thay gì toàn bộ    
+ ** cache control headers hổ trợ định nghĩa 2 loại:
+  + If-Modified-Since (hỏi coi có thay đổi ko)
+  + Last-Modified (thay đổi rồi thì load lại vào cache)
+ => Tránh load toàn bộ mà chỉ load phần thay đổi
+
+ add_header my_cache $upstream_cache_status; #> Trả về  trạng thái của cache trong phần header, có các trạng thái như:
+ * MISS         #> Không trả về  cache trong reponse vì không có cache tồn tại
+ * BYPASS       #> Có cache nhưng không dùng
+ * EXPIRED      #> Cache hết hạn
+ * STALE        #> Server không trả lời -> dùng cache cũ -> không 9 xác
+ * UPDATING     #> Cache đang được cập nhật, trong thời gian này -> dùng cache cũ -> không 9 xác
+ * REVALIDATED  #> Xác nhận cache reponse -> load phần thay đổi trong cache
+ * HIT          #> Trả về  cache trong reponse
+
+ proxy_cache_background_update on;  #> Cập nhật cache trong time update nếu được request, sẽ trả về  cache cũ dùng phối hợp với proxy_cache_use_stale
+
+ proxy_cache_valid 200 30m;         #> Cache những request status 200 với thời gian 30 phút
+
+ proxy_cache_key "$scheme$host$request_uri";  #> Biến được cache (TH này đang dùng mặc định của nginx, có thể  custom thêm tùy trường hợp thực tế)
+
+ proxy_cache_min_uses Times;       #> Request Times lần mới được vào cache
+
+ proxy_cache_bypass $http_cache_control; #> Bỏ qua cache
+
+ proxy_ignore_headers Cache-Control;  #> Bỏ qua cache
+ proxy_ignore_headers Set-Cookie;     #> Bỏ qua cache
+ proxy_hide_header Set-Cookie;        #> Ẩn header cookie người dùng trong quá trình truy cập
+
+#### Điểm đặt cache và các config
+Phần khởi tạo thường được đặt trên block
+Thường đặt trong 1 block location
+```
+location optional_modifier location_match {
+    . . .
 }
 ```
+- optional_modifier
+ - (none) #> Nếu không khai báo gì thì NGINX sẽ hiểu là tất cả các request có URI bắt đầu bằng phần location_match sẽ được chuyển cho location block này xử lí.
+ - = #> Khai báo này chỉ ra rằng URI phải có chính xác giống như location_match (giống như so sánh string bình thường).
+ - ~ #> Sử dụng regular expression cho các URI.
+ - ~* #> Sử dụng regular expression cho các URI cho phép pass cả chữ hoa và chữ thường
 
-```ruby
-# Ruby code with syntax highlighting
-GitHubPages::Dependencies.gems.each do |gem, version|
-  s.add_dependency(gem, "= #{version}")
-end
+Ví dụ
 ```
-
-#### Header 4
-
-*   This is an unordered list following a header.
-*   This is an unordered list following a header.
-*   This is an unordered list following a header.
-
-##### Header 5
-
-1.  This is an ordered list following a header.
-2.  This is an ordered list following a header.
-3.  This is an ordered list following a header.
-
-###### Header 6
-
-| head1        | head two          | three |
-|:-------------|:------------------|:------|
-| ok           | good swedish fish | nice  |
-| out of stock | good and plenty   | nice  |
-| ok           | good `oreos`      | hmm   |
-| ok           | good `zoute` drop | yumm  |
-
-
-| Option                       | head two          |
-|:-----------------------------|:------------------|
-| proxy_cache my_cache;        | Gọi cache         |
-| proxy_cache_use_stale        | good and plenty   |
-| ok                           | good `oreos`      |
-| ok                           | good `zoute` drop |
-
-
-### There's a horizontal rule below this.
-
-* * *
-
-### Here is an unordered list:
-
-*   Item foo
-*   Item bar
-*   Item baz
-*   Item zip
-
-### And an ordered list:
-
-1.  Item one
-1.  Item two
-1.  Item three
-1.  Item four
-
-### And a nested list:
-
-- level 1 item
-  - level 2 item
-  - level 2 item
-    - level 3 item
-    - level 3 item
-- level 1 item
-  - level 2 item
-  - level 2 item
-  - level 2 item
-- level 1 item
-  - level 2 item
-  - level 2 item
-- level 1 item
-
-### Small image
-
-![Octocat](https://assets-cdn.github.com/images/icons/emoji/octocat.png)
-
-### Large image
-
-![Branching](https://guides.github.com/activities/hello-world/branching.png)
-
-
-### Definition lists can be used with HTML syntax.
-
-<dl>
-<dt>Name</dt>
-<dd>Godzilla</dd>
-<dt>Born</dt>
-<dd>1952</dd>
-<dt>Birthplace</dt>
-<dd>Japan</dd>
-<dt>Color</dt>
-<dd>Green</dd>
-</dl>
+location /site {
+    . . .
+}
+```
+các request có URI có dạng như sau: /site, /site/page/1, site/index.html sẽ được xử lí thông qua location này.
 
 ```
-Long, single-line code blocks should not wrap. They should horizontally scroll if they are too long. This line should be long enough to demonstrate this.
+location = /site {
+    . . .
+}
 ```
+Với 3 URI như bên trên thì chỉ có /site sẽ có thể được xử lí trong directive này, còn /site/page/1 hay /site/index.html thì không.
 
 ```
-The final element.
+location ~ \.(jpe?g|png|gif|ico)$ {
+    . . .
+}
 ```
+Các request có đuôi .jpg,.jpeg, .png, .gif, .ico có thể pass qua location này nhưng .PNG thì không
+
+```
+location ~* \.(jpe?g|png|gif|ico)$ {
+    . . .
+}
+```
+Giống như trên nhưng đuôi .PNG cũng có thể pass.
+
+#### Kiểm tra cache
+* Ở trình duyệt có thể  F12
+![Trình duyệt](/assets/img/cached-test.png)
+
+* Ở console
+![Console](/assets/img/cached-test2.png)
+
+#### Tham khảo
+mkdir /path/to/cache
+chown -R nginx:nginx /path/to/cache
+
+proxy_cache_path /path/to/cache levels=1:2 keys_zone=my_cache:10m max_size=10g
+                 inactive=60m use_temp_path=off;
+server {
+  location / {
+      #proxy_cache_bypass $no_cache;
+      #proxy_no_cache $no_cache;
+      #proxy_cache_bypass $http_cache_control
+      proxy_ignore_headers Set-Cookie;
+      proxy_hide_header Set-Cookie;
+      add_header my_cache $upstream_cache_status;
+      proxy_cache my_cache;
+      proxy_cache_background_update on;
+      proxy_cache_revalidate on;
+      proxy_cache_key "$scheme$host$request_uri";
+      proxy_cache_valid 200 30m;
+      proxy_cache_use_stale error timeout invalid_header updating http_500 http_502 http_503 http_504;
+      ....
+  }
+}
