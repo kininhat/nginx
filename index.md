@@ -3,9 +3,9 @@ layout: default
 ---
 Bài viết nhằm thảo luận về  **nginx cache cho backend vestacp(nginx + httpd)** dưới góc nhìn của beginner.
 
-Tham khảo [link](./https://www.nginx.com/blog/nginx-caching-guide/).
-Tham khảo [link](./http://www.anton-pirker.at/boosting-djangos-performance-with-nginx-reverse-proxy-cache/).
-Tham khảo [link](./https://viblo.asia/p/nginx-server-va-location-block-cach-lam-viec-va-phuong-thuc-dieu-huong-request-3Q75wy3DZWb).
+Tham khảo [link](https://www.nginx.com/blog/nginx-caching-guide).
+Tham khảo [link](http://www.anton-pirker.at/boosting-djangos-performance-with-nginx-reverse-proxy-cache).
+Tham khảo [link](https://viblo.asia/p/nginx-server-va-location-block-cach-lam-viec-va-phuong-thuc-dieu-huong-request-3Q75wy3DZWb).
 
 
 ### Các vấn đề  cần lưu ý khi set up nginx cache.
@@ -23,7 +23,7 @@ Vì vậy, cần xác nhận tối thiểu các yêu cầu như trên trước k
 #### Khởi tạo
 proxy_cache_path /path/to/cache levels=1:2 keys_zone=my_cache:10m max_size=10g
                  inactive=60m use_temp_path=off;
-- Tham số:
+Tham số:
 *   proxy_cache_path  => đường dẫn file cache
 *   levels  => Cấp độ lưu trữ cache
 *   keys_zone  => tên cache và dung lượng cho phép
@@ -31,7 +31,7 @@ proxy_cache_path /path/to/cache levels=1:2 keys_zone=my_cache:10m max_size=10g
 *   proxy_cache_path=off  => đường dẫn đến file cache
 
 #### Cấu hình
-- Sau đây là 1 số  option để  thêm vào file config hay dùng
+ Sau đây là 1 số  option để  thêm vào file config hay dùng
 
  proxy_cache my_cache;              #> Gọi cache
 
