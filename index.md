@@ -120,6 +120,7 @@ Giống như trên nhưng đuôi .PNG cũng có thể pass.
 ![Image](/assets/img/cache-test2.png)
 
 #### Tham khảo
+```
 mkdir /path/to/cache
 chown -R nginx:nginx /path/to/cache
 
@@ -142,3 +143,4 @@ server {
       ....
   }
 }
+```
